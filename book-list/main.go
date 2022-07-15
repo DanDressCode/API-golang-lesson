@@ -74,7 +74,7 @@ func getBooks(w http.ResponseWriter, r *http.Request) {
 	defer rows.Close()
 
 	for rows.Next() {
-		rows.Scan(&book.ID, &book.Title, &book.Author, &book.Year)
+		err := rows.Scan(&book.ID, &book.Title, &book.Author, &book.Year)
 		log.Fatal(err)
 
 		books = append(books, book)
