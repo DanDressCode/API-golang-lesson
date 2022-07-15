@@ -1,12 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
 
 	"database/sql"
-	_ "database/sql"
 
 	"github.com/gorilla/mux"
 	"github.com/lib/pq"
@@ -38,9 +38,14 @@ func main() {
 	pgUrl, err := pq.ParseURL(os.Getenv("ELEPHANTSQL_URL"))
 	logFatal(err)
 
-	log.Println(pgUrl)
+	db, err = sql.Open("postgres", pgUrl)
+	logFatal(err)
+
+	err = db.Ping()
+	log.Println()
 
 	router := mux.NewRouter()
+
 	/*
 		- 'dbname',
 		- 'password',
@@ -60,6 +65,22 @@ func main() {
 }
 
 func getBooks(w http.ResponseWriter, r *http.Request) {
+	var book Book
+	books = []Book{}
+
+	rows, err := db.Query("select * from books")
+	log.Fatal(err)
+
+	defer rows.Close()
+
+	for rows.Next() {
+		rows.Scan(&book.ID, &book.Title, &book.Author, &book.Year)
+		log.Fatal(err)
+
+		books = append(books, book)
+	}
+
+	json.NewEncoder(w).Encode(books)
 
 }
 
