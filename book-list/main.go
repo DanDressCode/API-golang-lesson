@@ -42,7 +42,9 @@ func main() {
 	logFatal(err)
 
 	err = db.Ping()
-	log.Println()
+	logFatal(err)
+
+	log.Println(pgUrl)
 
 	router := mux.NewRouter()
 
