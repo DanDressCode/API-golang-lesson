@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"main/models"
 	"net/http"
 	"os"
 
@@ -13,14 +14,7 @@ import (
 	"github.com/subosito/gotenv"
 )
 
-type Book struct {
-	ID     int    `json:id`
-	Title  string `json:title`
-	Author string `json:author`
-	Year   string `year`
-}
-
-var books []Book
+var books []models.Book
 var db *sql.DB
 
 func init() {
@@ -67,8 +61,8 @@ func main() {
 }
 
 func getBooks(w http.ResponseWriter, r *http.Request) {
-	var book Book
-	books = []Book{}
+	var book models.Book
+	books = []models.Book{}
 
 	rows, err := db.Query("select * from books")
 	logFatal(err)
@@ -87,7 +81,7 @@ func getBooks(w http.ResponseWriter, r *http.Request) {
 }
 
 func getBook(w http.ResponseWriter, r *http.Request) {
-	var book Book
+	var book models.Book
 	params := mux.Vars(r)
 
 	rows := db.QueryRow("select * from books where id=$1", params["id"])
@@ -99,7 +93,7 @@ func getBook(w http.ResponseWriter, r *http.Request) {
 
 func addBook(w http.ResponseWriter, r *http.Request) {
 
-	var book Book
+	var book models.Book
 	var bookID int
 
 	json.NewDecoder(r.Body).Decode(&book)
@@ -114,7 +108,7 @@ func addBook(w http.ResponseWriter, r *http.Request) {
 
 func updateBooks(w http.ResponseWriter, r *http.Request) {
 
-	var book Book
+	var book models.Book
 	json.NewDecoder(r.Body).Decode(&book)
 
 	result, err := db.Exec("update books set title=$1, author=$2,year=$3 where id=$4 RETURNING id", &book.Title, &book.Author, &book.Year, &book.ID)
